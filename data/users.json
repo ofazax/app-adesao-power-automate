@@ -1,0 +1,26 @@
+[
+  {
+    "username": "admin",
+    "password": "123",
+    "name": "Desenvolvedor",
+    "role": "dev"
+  },
+  {
+    "username": "cassiajayne",
+    "password": "cj123@",
+    "name": "Cássia Jayne Santos do Nascimento",
+    "role": "chefe"
+  },
+  {
+    "username": "brunnoenrico",
+    "password": "be123*",
+    "name": "Brunno Enrico Machado Costa",
+    "role": "admin"
+  },
+  {
+    "username": "fulano",
+    "password": "123",
+    "name": "Fulano Da Silva",
+    "role": "colaborador"
+  }
+]
