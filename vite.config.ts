@@ -13,9 +13,9 @@ export default defineConfig(() => {
         registerType: 'autoUpdate',
         includeAssets: ['icon.svg'],
         manifest: {
-          name: 'Cadastro App',
-          short_name: 'Cadastro',
-          description: 'Aplicativo de Cadastro',
+          name: 'Adesão',
+          short_name: 'Adesão',
+          description: 'Aplicativo de Adesão',
           theme_color: '#162A3D',
           background_color: '#162A3D',
           display: 'standalone',

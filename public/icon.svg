@@ -1,4 +1,20 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
-  <rect width="512" height="512" fill="#162A3D" rx="100"/>
-  <path d="M256 120 L380 380 L132 380 Z" fill="#93C1F1"/>
+  <!-- Fundo com as cores do tema (#162A3D) -->
+  <rect width="512" height="512" rx="112" fill="#162A3D"/>
+  
+  <!-- Prancheta (Formulário/Adesão) -->
+  <rect x="136" y="130" width="240" height="280" rx="24" fill="#ffffff"/>
+  
+  <!-- Presilha da prancheta -->
+  <path d="M226 110 h60 a16 16 0 0 1 16 16 v24 h-92 v-24 a16 16 0 0 1 16 -16 z" fill="#64748B"/>
+  <rect x="236" y="94" width="40" height="24" rx="10" fill="#94A3B8"/>
+  
+  <!-- Gota de Água (Saneamento) -->
+  <path d="M256,180 C256,180 206,240 206,280 A50,50 0 0,0 306,280 C306,240 256,180 256,180 Z" fill="#0EA5E9"/>
+  <!-- Brilho na gota -->
+  <circle cx="270" cy="280" r="8" fill="#ffffff" opacity="0.4"/>
+  
+  <!-- Linhas do formulário -->
+  <rect x="186" y="345" width="140" height="12" rx="6" fill="#E2E8F0"/>
+  <rect x="186" y="375" width="90" height="12" rx="6" fill="#E2E8F0"/>
 </svg>
