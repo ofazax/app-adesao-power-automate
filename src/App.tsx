@@ -115,8 +115,14 @@ export default function App() {
       if (!data.nomeCompleto || !data.cpf || !data.dataNascimento) return 'Por favor, preencha todos os campos obrigatórios desta etapa.';
       if (!isValidCPF(data.cpf)) return 'CPF inválido. Verifique o número digitado.';
       
-      const [year, month, day] = data.dataNascimento.split('-').map(Number);
+      if (data.dataNascimento.length !== 10) return 'Por favor, digite uma data de nascimento válida (DD/MM/AAAA).';
+      
+      const [day, month, year] = data.dataNascimento.split('/').map(Number);
       const birthDate = new Date(year, month - 1, day);
+      
+      if (isNaN(birthDate.getTime()) || day < 1 || day > 31 || month < 1 || month > 12 || year < 1900 || year > 2100) {
+        return 'Data de nascimento inválida.';
+      }
       const today = new Date();
       let age = today.getFullYear() - birthDate.getFullYear();
       const m = today.getMonth() - birthDate.getMonth();

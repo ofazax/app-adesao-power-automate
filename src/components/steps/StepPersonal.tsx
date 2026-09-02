@@ -49,6 +49,17 @@ const formatTelefone = (value: string) => {
   return v;
 };
 
+const formatDataNascimento = (value: string) => {
+  let v = value.replace(/\D/g, '');
+  if (v.length > 8) v = v.slice(0, 8);
+  if (v.length > 4) {
+    v = v.replace(/(\d{2})(\d{2})(\d{1,4})/, '$1/$2/$3');
+  } else if (v.length > 2) {
+    v = v.replace(/(\d{2})(\d{1,2})/, '$1/$2');
+  }
+  return v;
+};
+
 export const StepPersonal: React.FC<StepProps> = ({ data, onChange }) => {
   return (
     <div className="flex flex-col gap-5 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -87,10 +98,12 @@ export const StepPersonal: React.FC<StepProps> = ({ data, onChange }) => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Input 
           label="Data de Nascimento" 
-          type="date" 
+          type="text"
+          inputMode="numeric"
+          placeholder="DD/MM/AAAA"
           required
           value={data.dataNascimento} 
-          onChange={e => onChange({ dataNascimento: e.target.value })} 
+          onChange={e => onChange({ dataNascimento: formatDataNascimento(e.target.value) })} 
         />
 
         <Input 
