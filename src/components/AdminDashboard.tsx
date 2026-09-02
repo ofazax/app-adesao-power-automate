@@ -381,7 +381,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout, adminN
             <div className="flex items-center justify-between p-6 border-b border-white/10 shrink-0">
               <div>
                 <h2 className="text-xl font-bold">Imagens do Cadastro</h2>
-                <p className="text-sm text-[#93C1F1] mt-1">{selectedSubmissionForImages["NOME COMPLETO"] || "Sem Nome"}</p>
+                <p className="text-sm text-[#93C1F1] mt-1">{selectedSubmissionForImages["NOMECOMPLETO"] || "Sem Nome"}</p>
               </div>
               <button 
                 onClick={() => setSelectedSubmissionForImages(null)}
