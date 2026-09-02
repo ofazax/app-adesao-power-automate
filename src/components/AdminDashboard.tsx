@@ -327,9 +327,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout, adminN
                   {userSubmissions.map((sub, idx) => (
                     <div key={sub._id || idx} className="bg-black/20 border border-white/10 rounded-xl p-4">
                       <div className="flex justify-between items-start mb-2">
-                        <span className="font-semibold text-[#93C1F1]">#{idx + 1} - {sub["NOME COMPLETO"] || "Sem Nome"}</span>
+                        <span className="font-semibold text-[#93C1F1]">#{idx + 1} - {sub["NOMECOMPLETO"] || "Sem Nome"}</span>
                         <span className="text-xs text-white/50">
-                          {sub._timestamp ? new Date(sub._timestamp).toLocaleString('pt-BR') : sub["DATA"]}
+                          {sub.created_at ? new Date(sub.created_at).toLocaleString('pt-BR') : sub["Data"]}
                         </span>
                       </div>
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-y-2 gap-x-4 text-sm text-white/80 mt-3">
@@ -338,7 +338,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout, adminN
                         <div><span className="text-white/50 block text-xs">Cidade</span> {sub["CIDADE"]}</div>
                         <div className="col-span-2 sm:col-span-3">
                           <span className="text-white/50 block text-xs">Endereço</span> 
-                          {sub["TIPO DE LOGRADOURO"]} {sub["LOGRADOURO"]}, {sub["NUMERO"]} {sub["COMPLEMENTO"]}
+                          {sub["TIPODELOGRADOURO"]} {sub["LOGRADOURO"]}, {sub["N_x00da_MERO"]} {sub["COMPLEMENTO"]}
                         </div>
                         <div className="col-span-2 sm:col-span-3 mt-2 flex flex-wrap gap-2">
                           <button
@@ -348,9 +348,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout, adminN
                             <ImageIcon size={14} />
                             Ver Imagens
                           </button>
-                          {sub["LATITUDE"] && sub["LONGITUDE"] && (
+                          {sub["Latitude0"] && sub["Longitude0"] && (
                             <a
-                              href={`https://www.google.com/maps?q=${sub["LATITUDE"]},${sub["LONGITUDE"]}`}
+                              href={`https://www.google.com/maps?q=${sub["Latitude0"]},${sub["Longitude0"]}`}
                               target="_blank"
                               rel="noopener noreferrer"
                               className="px-3 py-1.5 bg-green-500/10 hover:bg-green-500/20 text-green-400 rounded-lg transition-colors text-xs font-medium flex items-center gap-2 w-fit"
@@ -395,13 +395,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout, adminN
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 {[
                   { key: 'FACHADA', label: 'Fachada' },
-                  { key: 'FOTO CADUNICO', label: 'CadÚnico' },
-                  { key: 'FOTO DA FRENTE DO DOCUMENTO', label: 'Documento (Frente)' },
-                  { key: 'FOTO DO VERSO DO DOCUMENTO', label: 'Documento (Verso)' },
-                  { key: 'FOLHA DE ADESAO', label: 'Folha de Adesão' },
-                  { key: 'OUTRAS1', label: 'Outras 1' },
-                  { key: 'OUTRAS2', label: 'Outras 2' },
-                  { key: 'OUTRAS3', label: 'Outras 3' },
+                  { key: 'FOTOCADUNICO', label: 'CadÚnico' },
+                  { key: 'FOTODAFRENTEDODOCUMENTO0', label: 'Documento (Frente)' },
+                  { key: 'FOTODOVERSODODOCUMENTO', label: 'Documento (Verso)' },
+                  { key: 'FOLHADEADES_x00c3_O', label: 'Folha de Adesão' },
+                  { key: 'OUTRAS', label: 'Outras 1' },
+                  { key: 'OUTRAS0', label: 'Outras 2' },
+                  { key: 'OUTRAS1', label: 'Outras 3' },
                 ].map((imgField) => {
                   const imgData = selectedSubmissionForImages[imgField.key];
                   if (!imgData) return null;
@@ -419,7 +419,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout, adminN
                   );
                 })}
                 {/* Fallback if no images are present */}
-                {![ 'FACHADA', 'FOTO CADUNICO', 'FOTO DA FRENTE DO DOCUMENTO', 'FOTO DO VERSO DO DOCUMENTO', 'FOLHA DE ADESAO', 'OUTRAS1', 'OUTRAS2', 'OUTRAS3' ].some(key => selectedSubmissionForImages[key]) && (
+                {![ 'FACHADA', 'FOTOCADUNICO', 'FOTODAFRENTEDODOCUMENTO0', 'FOTODOVERSODODOCUMENTO', 'FOLHADEADES_x00c3_O', 'OUTRAS', 'OUTRAS0', 'OUTRAS1' ].some(key => selectedSubmissionForImages[key]) && (
                   <div className="col-span-full text-center p-8 text-white/50">
                     Nenhuma imagem encontrada neste cadastro.
                   </div>
