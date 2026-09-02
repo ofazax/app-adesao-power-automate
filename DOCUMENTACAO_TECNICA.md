@@ -102,4 +102,3 @@ Para **adicionar um novo campo** no sistema de ponta a ponta, é imperativo segu
 4.  **Power Automate**: Atualizar o schema do Trigger HTTP para incluir a nova chave e mapeá-la na ação de "Create Item". Se for uma nova imagem, um novo bloco de *Condition + Create File + HTTP Request* deverá ser montado.
 
 ---
-*Documentação gerada com base na estrutura do código atual e notas de integração existentes.*
