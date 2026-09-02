@@ -10,6 +10,7 @@ import { StepAttachments } from './components/steps/StepAttachments';
 import { isValidCPF } from './utils/validateCPF';
 import { Login } from './components/Login';
 import { AdminDashboard } from './components/AdminDashboard';
+import { supabase } from './lib/supabase';
 
 const initialData: FormData = {
   statusVisita: '', data: '', agente: '', agendamentoObra: '',
@@ -186,13 +187,75 @@ export default function App() {
 
     setErrorMsg('');
     try {
-      const res = await fetch('/api/submit', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(finalData)
-      });
-      const result = await res.json();
-      if (!result.success) throw new Error(result.message || 'Erro ao enviar dados');
+      // Mapeamento para os nomes internos exatos da lista SharePoint original
+      const mappedPayload = {
+        "Data": finalData.data || "",
+        "MATR_x00cd_CULA": finalData.matricula || "",
+        "IDENTIFICADOR": finalData.identificador || "",
+        "N_x00da_MERODOHIDR_x00d4_METRO": finalData.numeroHidrometro || "",
+        "N_x00da_MERODEECONOMIAS": finalData.numeroEconomias || "",
+        "ENTREN_x00da_MEROS": finalData.entreNumeros || "",
+        "TIPODELOGRADOURO": finalData.tipoLogradouro || "",
+        "LOGRADOURO": finalData.logradouro || "",
+        "N_x00da_MERO": finalData.numero || "",
+        "TIPODECOMPLEMENTO": finalData.tipoComplemento || "",
+        "COMPLEMENTO": finalData.complemento || "",
+        "ZEIS": finalData.zeis === "Outras" && finalData.outrasZeis ? finalData.outrasZeis : (finalData.zeis || ""),
+        "BAIRRO": finalData.bairro || "",
+        "CIDADE": finalData.cidade || "",
+        "NOMECOMPLETO": finalData.nomeCompleto || "",
+        "RG": finalData.rg || "",
+        "CPF": finalData.cpf || "",
+        "DATADENASCIMENTO": finalData.dataNascimento || "",
+        "TELEFONE": finalData.telefone || "",
+        "EMAIL": finalData.email || "",
+        "TIPODEADES_x00c3_O": finalData.tipoAdesao || "",
+        "PAVIMENTOINTERNO": finalData.pavimentoInterno || "",
+        "PAVIMENTOEXTERNO": finalData.pavimentoExterno || "",
+        "SITUA_x00c7__x00c3_ODEESGOTAMENT": finalData.situacaoEsgotamento || "",
+        "TIPODELIGA_x00c7__x00c3_O": finalData.tipoLigacao || "",
+        "AGENTE": finalData.agente || "",
+        "FOTOCADUNICO": finalData.fotoCadunico || null,
+        "AGENDAMENTODAOBRA": finalData.agendamentoObra || "",
+        "OBSERVA_x00c7__x00d5_ES": finalData.observacoes || "",
+        "FOTODAFRENTEDODOCUMENTO0": finalData.frenteDocumento || null,
+        "FOTODOVERSODODOCUMENTO": finalData.versoDocumento || null,
+        "FACHADA": finalData.fachada || null,
+        "FOLHADEADES_x00c3_O": finalData.folhaAdesao || null,
+        "OUTRAS": finalData.outras0 || null,
+        "OUTRAS0": finalData.outras1 || null,
+        "OUTRAS1": finalData.outras2 || null,
+        "TEMCAD_x00da_NICO_x003f_": finalData.temCadunico || "",
+        "STATUSDAVISITA": finalData.statusVisita || "",
+        "Latitude0": finalData.latitude || "",
+        "Longitude0": finalData.longitude || ""
+      };
+
+      const webhookUrl = import.meta.env.VITE_POWER_AUTOMATE_WEBHOOK_URL;
+      
+      if (webhookUrl) {
+        try {
+          const webhookRes = await fetch(webhookUrl, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(mappedPayload),
+          });
+          if (!webhookRes.ok) {
+            console.warn(`Webhook failed with status ${webhookRes.status}`);
+          }
+        } catch (webhookErr) {
+          console.warn("Erro ao enviar para o webhook:", webhookErr);
+        }
+      }
+
+      // Salvar no Supabase
+      const { error: dbError } = await supabase.from('submissions').insert(mappedPayload);
+      
+      if (dbError) {
+        console.error("Supabase Error:", dbError);
+        throw new Error('Erro ao salvar dados no banco. Verifique a conexão.');
+      }
+
       setIsSuccess(true);
     } catch (err: any) {
       console.error(err);

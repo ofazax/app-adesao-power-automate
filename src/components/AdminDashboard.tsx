@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { Users, UserPlus, Trash2, LogOut, Loader2, List, X, Image as ImageIcon, MapPin } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
 interface AdminDashboardProps {
   onLogout: () => void;
@@ -27,10 +28,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout, adminN
 
   const fetchUsers = async () => {
     try {
-      const res = await fetch('/api/users');
-      const data = await res.json();
-      if (data.success) {
-        setUsers(data.users);
+      const { data, error } = await supabase.from('users').select('*');
+      if (error) throw error;
+      if (data) {
+        setUsers(data);
       }
     } catch (err) {
       console.error(err);
@@ -50,14 +51,23 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout, adminN
     setIsCreating(true);
 
     try {
-      const res = await fetch('/api/users', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: newUsername, password: newPassword, name: newName, role: newRole })
-      });
-      const data = await res.json();
+      // Verifica se já existe
+      const { data: existingUser } = await supabase.from('users').select('username').eq('username', newUsername).single();
       
-      if (data.success) {
+      if (existingUser) {
+        setErrorMsg('Nome de usuário já existe');
+        setIsCreating(false);
+        return;
+      }
+
+      const { error } = await supabase.from('users').insert({ 
+        username: newUsername, 
+        password: newPassword, 
+        name: newName, 
+        role: newRole 
+      });
+      
+      if (!error) {
         setSuccessMsg('Usuário criado com sucesso!');
         setNewUsername('');
         setNewPassword('');
@@ -65,10 +75,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout, adminN
         setNewRole('colaborador');
         fetchUsers();
       } else {
-        setErrorMsg(data.message || 'Erro ao criar usuário.');
+        setErrorMsg('Erro ao criar usuário.');
       }
     } catch (err) {
-      setErrorMsg('Falha na conexão com o servidor.');
+      setErrorMsg('Falha na conexão com o banco de dados.');
     } finally {
       setIsCreating(false);
     }
@@ -78,15 +88,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout, adminN
     if (!confirm(`Tem certeza que deseja excluir o usuário ${username}?`)) return;
     
     try {
-      const res = await fetch(`/api/users/${username}`, { method: 'DELETE' });
-      const data = await res.json();
-      if (data.success) {
+      const { error } = await supabase.from('users').delete().eq('username', username);
+      if (!error) {
         fetchUsers();
       } else {
-        alert(data.message || 'Erro ao deletar usuário.');
+        alert('Erro ao deletar usuário.');
       }
     } catch (err) {
-      alert('Falha na conexão com o servidor.');
+      alert('Falha na conexão com o banco de dados.');
     }
   };
 
@@ -94,15 +103,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogout, adminN
     setSelectedUser(user);
     setIsLoadingSubmissions(true);
     try {
-      const res = await fetch(`/api/submissions/${user.username}`);
-      const data = await res.json();
-      if (data.success) {
-        setUserSubmissions(data.submissions);
-      } else {
-        alert(data.message || 'Erro ao buscar cadastros.');
+      const { data, error } = await supabase.from('submissions').select('*').eq('AGENTE', user.name);
+      if (error) throw error;
+      if (data) {
+        setUserSubmissions(data);
       }
     } catch (err) {
-      alert('Falha na conexão com o servidor.');
+      console.error(err);
+      alert('Falha na conexão com o banco de dados.');
     } finally {
       setIsLoadingSubmissions(false);
     }

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { ClipboardList, LogIn } from 'lucide-react';
+import { supabase } from '../lib/supabase';
 
 interface LoginProps {
   onLogin: (name: string, role: string) => void;
@@ -18,19 +19,20 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
     setIsLoading(true);
 
     try {
-      const res = await fetch('/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username, password })
-      });
+      const { data, error } = await supabase
+        .from('users')
+        .select('*')
+        .eq('username', username)
+        .eq('password', password)
+        .single();
 
-      const data = await res.json();
-      if (res.ok && data.success) {
-        onLogin(data.name, data.role);
+      if (error || !data) {
+        setErrorMsg('Usuário ou senha inválidos.');
       } else {
-        setErrorMsg(data.message || 'Erro ao realizar login.');
+        onLogin(data.name, data.role);
       }
     } catch (err) {
+      console.error(err);
       setErrorMsg('Falha na conexão com o servidor.');
     } finally {
       setIsLoading(false);
