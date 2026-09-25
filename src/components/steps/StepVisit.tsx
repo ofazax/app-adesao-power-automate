@@ -43,7 +43,7 @@ export const StepVisit: React.FC<StepProps> = ({ data, onChange }) => {
         type="text" 
         value={data.agente} 
         onChange={() => {}} // Não permite alteração manual
-        readOnly
+        disabled
       />
 
       <Input 
@@ -51,7 +51,7 @@ export const StepVisit: React.FC<StepProps> = ({ data, onChange }) => {
         type="text" 
         placeholder="Ex: Qualquer dia, ligar antes..."
         value={data.agendamentoObra} 
-        onChange={e => onChange({ agendamentoObra: e.target.value })} 
+        onChange={e => onChange({ agendamentoObra: e.target.value.toUpperCase() })} 
       />
     </div>
   );

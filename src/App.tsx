@@ -9,8 +9,6 @@ import { StepTechnical } from './components/steps/StepTechnical';
 import { StepAttachments } from './components/steps/StepAttachments';
 import { isValidCPF } from './utils/validateCPF';
 import { Login } from './components/Login';
-import { AdminDashboard } from './components/AdminDashboard';
-import { supabase } from './lib/supabase';
 
 const initialData: FormData = {
   statusVisita: '', data: '', agente: '', agendamentoObra: '',
@@ -48,6 +46,15 @@ export default function App() {
   const initialAuth = getInitialAuth();
 
   const [data, setData] = useState<FormData>(getInitialData);
+  
+  const isSimplifiedFlow = ['Ausente', 'Inexistente', 'Recusa', 'Lote Vago', 'Lote'].includes(data.statusVisita);
+  
+  const visibleSteps = steps.filter(step => {
+    if (isSimplifiedFlow) {
+      return ['visit', 'address', 'attachments'].includes(step.id);
+    }
+    return true;
+  });
   const [currentStep, setCurrentStep] = useState(getInitialStep);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
@@ -64,6 +71,12 @@ export default function App() {
   useEffect(() => {
     localStorage.setItem('app_current_step', currentStep.toString());
   }, [currentStep]);
+
+  useEffect(() => {
+    if (currentStep >= visibleSteps.length) {
+      setCurrentStep(Math.max(0, visibleSteps.length - 1));
+    }
+  }, [visibleSteps.length, currentStep]);
 
   useEffect(() => {
     localStorage.setItem('app_auth', JSON.stringify({ isAuthenticated, userRole, agentName }));
@@ -87,21 +100,14 @@ export default function App() {
     localStorage.removeItem('app_current_step');
   };
 
-  useEffect(() => {
-    // Get location
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((pos) => {
-        setData(d => ({ ...d, latitude: pos.coords.latitude.toString(), longitude: pos.coords.longitude.toString() }));
-      });
-    }
-  }, []);
+
 
   const handleChange = (updates: Partial<FormData>) => {
     setData(prev => ({ ...prev, ...updates }));
   };
 
   const validateStep = (stepIndex: number): string | null => {
-    const stepId = steps[stepIndex].id;
+    const stepId = visibleSteps[stepIndex]?.id;
     if (stepId === 'visit') {
       if (!data.data) return 'Por favor, preencha a data da visita.';
     } else if (stepId === 'address') {
@@ -109,7 +115,7 @@ export default function App() {
         return 'Por favor, preencha todos os campos obrigatórios desta etapa.';
       }
       if (!data.latitude || !data.longitude) {
-        return 'Não foi possível capturar a localização GPS automaticamente. Por favor, certifique-se de permitir o acesso à localização no seu navegador.';
+        return 'Por favor, preencha a latitude e longitude do endereço.';
       }
     } else if (stepId === 'personal') {
       if (!data.nomeCompleto || !data.cpf || !data.dataNascimento) return 'Por favor, preencha todos os campos obrigatórios desta etapa.';
@@ -141,7 +147,11 @@ export default function App() {
     } else if (stepId === 'technical') {
       if (!data.tipoAdesao) return 'Por favor, preencha todos os campos obrigatórios desta etapa.';
     } else if (stepId === 'attachments') {
-      if (!data.fachada || !data.frenteDocumento || !data.versoDocumento || !data.folhaAdesao) return 'Por favor, preencha todos os campos obrigatórios e anexe os documentos necessários.';
+      if (isSimplifiedFlow) {
+        if (!data.fachada) return 'Por favor, anexe a foto da fachada.';
+      } else {
+        if (!data.fachada || !data.frenteDocumento || !data.versoDocumento || !data.folhaAdesao) return 'Por favor, preencha todos os campos obrigatórios e anexe os documentos necessários.';
+      }
     }
     return null;
   };
@@ -153,7 +163,7 @@ export default function App() {
       return;
     }
     setErrorMsg('');
-    if (currentStep < steps.length - 1) {
+    if (currentStep < visibleSteps.length - 1) {
       setCurrentStep(s => s + 1);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -174,25 +184,20 @@ export default function App() {
       return;
     }
     setIsSubmitting(true);
-    setErrorMsg('Buscando localização...');
+
     
-    // Obter localização atualizada no momento do envio
+    // Usar os dados preenchidos
     let finalData = { ...data };
-    try {
-      if (navigator.geolocation) {
-        const position = await new Promise<GeolocationPosition>((resolve, reject) => {
-          navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 10000 });
-        });
-        finalData.latitude = position.coords.latitude.toString();
-        finalData.longitude = position.coords.longitude.toString();
-      }
-    } catch (err) {
-      console.warn("Não foi possível obter a localização", err);
-      // Continua com os dados vazios se falhar
-    }
 
     setErrorMsg('');
     try {
+      // Converter data de nascimento de DD/MM/AAAA para AAAA-MM-DD para o SharePoint
+      let formattedDataNascimento = finalData.dataNascimento || "";
+      if (formattedDataNascimento.length === 10 && formattedDataNascimento.includes('/')) {
+        const [day, month, year] = formattedDataNascimento.split('/');
+        formattedDataNascimento = `${year}-${month}-${day}`;
+      }
+
       // Mapeamento para os nomes internos exatos da lista SharePoint original
       const mappedPayload = {
         "Data": finalData.data || "",
@@ -212,7 +217,7 @@ export default function App() {
         "NOMECOMPLETO": finalData.nomeCompleto || "",
         "RG": finalData.rg || "",
         "CPF": finalData.cpf || "",
-        "DATADENASCIMENTO": finalData.dataNascimento || "",
+        "DATADENASCIMENTO": formattedDataNascimento,
         "TELEFONE": finalData.telefone || "",
         "EMAIL": finalData.email || "",
         "TIPODEADES_x00c3_O": finalData.tipoAdesao || "",
@@ -254,14 +259,6 @@ export default function App() {
         }
       }
 
-      // Salvar no Supabase
-      const { error: dbError } = await supabase.from('submissions').insert(mappedPayload);
-      
-      if (dbError) {
-        console.error("Supabase Error:", dbError);
-        throw new Error('Erro ao salvar dados no banco. Verifique a conexão.');
-      }
-
       setIsSuccess(true);
     } catch (err: any) {
       console.error(err);
@@ -273,10 +270,6 @@ export default function App() {
 
   if (!isAuthenticated) {
     return <Login onLogin={handleLogin} />;
-  }
-
-  if (userRole === 'admin' || userRole === 'dev' || userRole === 'chefe') {
-    return <AdminDashboard onLogout={handleLogout} adminName={agentName} adminRole={userRole} />;
   }
 
   if (isSuccess) {
@@ -309,7 +302,7 @@ export default function App() {
     );
   }
 
-  const CurrentComponent = steps[currentStep].component;
+  const CurrentComponent = visibleSteps[currentStep]?.component || StepVisit;
 
   return (
     <div className="min-h-screen bg-[#162A3D] text-white flex overflow-x-hidden font-sans selection:bg-[#42729E]/30 relative">
@@ -327,7 +320,7 @@ export default function App() {
         </div>
         
         <nav className='flex flex-col gap-2'>
-          {steps.map((step, idx) => {
+          {visibleSteps.map((step, idx) => {
             const isActive = idx === currentStep;
             return (
               <button 
@@ -346,7 +339,7 @@ export default function App() {
       <main className='flex-1 flex flex-col p-4 md:p-10 z-10 md:ml-72 min-h-screen'>
         <header className='flex flex-row justify-between items-center mb-8 gap-4 pt-4 md:pt-0 max-w-[328px] md:max-w-2xl mx-auto w-full'>
           <div>
-            <h2 className='text-3xl font-bold text-white'>{steps[currentStep].title}</h2>
+            <h2 className='text-3xl font-bold text-white'>{visibleSteps[currentStep]?.title}</h2>
           </div>
           <button 
             onClick={handleLogout} 
@@ -358,7 +351,7 @@ export default function App() {
 
         {/* Mobile steps progress indicator */}
         <div className="md:hidden flex gap-1 w-full max-w-[328px] md:max-w-2xl mx-auto bg-white/5 rounded-full overflow-hidden mb-6 h-1.5 border border-white/5">
-          {steps.map((_, idx) => (
+          {visibleSteps.map((_, idx) => (
             <div 
               key={idx} 
               className={`h-full flex-1 transition-all duration-500 ${idx <= currentStep ? 'bg-[#93C1F1] shadow-[0_0_8px_rgba(147,193,241,0.6)]' : 'bg-transparent'}`}
@@ -368,7 +361,7 @@ export default function App() {
 
         <section className='flex-1 bg-white/5 backdrop-blur-md rounded-3xl border border-white/10 p-6 md:p-8 shadow-2xl flex flex-col w-full max-w-[328px] md:max-w-2xl mx-auto overflow-hidden'>
           <AnimatePresence mode="wait">
-            <CurrentComponent key={steps[currentStep].id} data={data} onChange={handleChange} />
+            <CurrentComponent key={visibleSteps[currentStep]?.id || 'visit'} data={data} onChange={handleChange} />
           </AnimatePresence>
 
           {errorMsg && (
@@ -387,7 +380,7 @@ export default function App() {
                 Voltar
               </button>
             )}
-            {currentStep < steps.length - 1 ? (
+            {currentStep < visibleSteps.length - 1 ? (
               <button 
                 onClick={handleNext} 
                 className='flex-1 px-6 py-2 rounded-lg bg-[#42729E] hover:bg-[#42729E]/80 text-sm font-semibold shadow-lg shadow-black/20 transition-all text-white flex items-center justify-center'

@@ -126,7 +126,31 @@ export const AutocompleteInput: React.FC<AutocompleteInputProps> = ({
         value={value}
         onChange={(e) => {
             setShowDropdown(true);
-            if (onChange) onChange(e);
+            const start = e.target.selectionStart;
+            const end = e.target.selectionEnd;
+            const prevLength = e.target.value.length;
+
+            if (onChange) {
+              onChange(e);
+              requestAnimationFrame(() => {
+                if (e.target) {
+                  const newLength = e.target.value.length;
+                  let newStart = start;
+                  let newEnd = end;
+
+                  if (start === prevLength) {
+                    newStart = newLength;
+                    newEnd = newLength;
+                  } else if (start !== null && end !== null) {
+                    const diff = newLength - prevLength;
+                    newStart = Math.max(0, start + diff);
+                    newEnd = Math.max(0, end + diff);
+                  }
+                  
+                  e.target.setSelectionRange(newStart, newEnd);
+                }
+              });
+            }
         }}
         onFocus={() => setShowDropdown(true)}
         {...props}

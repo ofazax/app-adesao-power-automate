@@ -85,24 +85,7 @@ export const StepAddress: React.FC<StepProps> = ({ data, onChange }) => {
     onChange({ complemento: text });
   };
 
-  React.useEffect(() => {
-    if (!data.latitude || !data.longitude) {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          (pos) => {
-            onChange({ 
-              latitude: pos.coords.latitude.toString(), 
-              longitude: pos.coords.longitude.toString() 
-            });
-          },
-          (err) => {
-            console.error('Erro ao capturar localização:', err.message);
-          },
-          { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
-        );
-      }
-    }
-  }, []);
+
 
   return (
     <div className="flex flex-col gap-5 animate-in fade-in slide-in-from-bottom-4 duration-500">
@@ -278,6 +261,49 @@ export const StepAddress: React.FC<StepProps> = ({ data, onChange }) => {
           required
         />
       )}
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-2 border-t border-white/10 pt-6">
+        <Input
+          label="Latitude"
+          value={data.latitude}
+          onChange={e => onChange({ latitude: e.target.value })}
+          required
+          placeholder="Ex: -19.92345"
+        />
+        <Input
+          label="Longitude"
+          value={data.longitude}
+          onChange={e => onChange({ longitude: e.target.value })}
+          required
+          placeholder="Ex: -43.93456"
+        />
+      </div>
+      
+      <button
+        type="button"
+        onClick={() => {
+          if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+              (pos) => {
+                onChange({ 
+                  latitude: pos.coords.latitude.toString(), 
+                  longitude: pos.coords.longitude.toString() 
+                });
+              },
+              (err) => {
+                alert('Erro ao capturar localização: ' + err.message);
+              },
+              { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+            );
+          } else {
+            alert('Geolocalização não suportada neste navegador.');
+          }
+        }}
+        className="flex items-center justify-center gap-2 w-full p-3 rounded-xl bg-white/5 border border-white/10 text-[#93C1F1] hover:bg-white/10 transition-colors text-sm font-medium"
+      >
+        <MapPin size={18} />
+        Pegar localização atual pelo GPS
+      </button>
     </div>
   );
 };

@@ -72,14 +72,14 @@ export const StepPersonal: React.FC<StepProps> = ({ data, onChange }) => {
         label="Nome Completo" 
         required 
         value={data.nomeCompleto} 
-        onChange={e => onChange({ nomeCompleto: e.target.value })} 
+        onChange={e => onChange({ nomeCompleto: e.target.value.toUpperCase() })} 
       />
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Input 
-          label="RG" 
+          label="RG (Opcional)" 
           type="text"
-          placeholder="Apenas letras e números"
+          placeholder="Deixe em branco se for o novo CIN"
           value={data.rg} 
           onChange={e => onChange({ rg: e.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 15) })} 
         />
@@ -120,7 +120,7 @@ export const StepPersonal: React.FC<StepProps> = ({ data, onChange }) => {
         label="Email" 
         type="email" 
         value={data.email} 
-        onChange={e => onChange({ email: e.target.value })} 
+        onChange={e => onChange({ email: e.target.value.toUpperCase() })} 
       />
 
       <Select

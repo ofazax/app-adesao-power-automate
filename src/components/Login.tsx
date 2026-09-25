@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { motion } from 'motion/react';
 import { ClipboardList, LogIn } from 'lucide-react';
-import { supabase } from '../lib/supabase';
 
 interface LoginProps {
   onLogin: (name: string, role: string) => void;
@@ -19,21 +18,32 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
     setIsLoading(true);
 
     try {
-      const { data, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq('username', username)
-        .eq('password', password)
-        .single();
-
-      if (error || !data) {
-        setErrorMsg('Usuário ou senha inválidos.');
-      } else {
-        onLogin(data.name, data.role);
+      const webhookUrl = import.meta.env.VITE_PA_LOGIN_WEBHOOK_URL;
+      
+      if (!webhookUrl || webhookUrl.includes('COLE_AQUI')) {
+         throw new Error("Webhook de Login não configurado.");
       }
-    } catch (err) {
+
+      const response = await fetch(webhookUrl, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password })
+      });
+
+      if (!response.ok) {
+        throw new Error('Usuário ou senha inválidos.');
+      }
+
+      const data = await response.json();
+      
+      if (data && data.name && data.role) {
+        onLogin(data.name, data.role);
+      } else {
+        setErrorMsg('Usuário ou senha inválidos.');
+      }
+    } catch (err: any) {
       console.error(err);
-      setErrorMsg('Falha na conexão com o servidor.');
+      setErrorMsg(err.message || 'Falha na conexão com o servidor.');
     } finally {
       setIsLoading(false);
     }
@@ -67,7 +77,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin }) => {
               autoComplete="username"
               required
               value={username}
-              onChange={(e) => setUsername(e.target.value)}
+              onChange={(e) => setUsername(e.target.value.toLowerCase())}
               className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-white/30 focus:outline-none focus:ring-2 focus:ring-[#93C1F1]/50 transition-all"
               placeholder="Digite seu usuário"
             />
