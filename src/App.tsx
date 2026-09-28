@@ -234,7 +234,7 @@ export default function App() {
         "NOMECOMPLETO": finalData.nomeCompleto || "",
         "RG": finalData.rg || "",
         "CPF": finalData.cpf || "",
-        "DATADENASCIMENTO": formattedDataNascimento,
+        "DATADENASCIMENTO": formattedDataNascimento || null,
         "TELEFONE": finalData.telefone || "",
         "EMAIL": finalData.email || "",
         "TIPODEADES_x00c3_O": finalData.tipoAdesao || "",
