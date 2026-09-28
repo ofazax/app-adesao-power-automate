@@ -39,7 +39,15 @@ const getInitialStep = (): number => {
 
 const getInitialAuth = () => {
   const saved = localStorage.getItem('app_auth');
-  return saved ? JSON.parse(saved) : { isAuthenticated: false, userRole: '', agentName: '' };
+  if (saved) {
+    try {
+      const parsed = JSON.parse(saved);
+      if (parsed.token && parsed.expiresAt > Date.now()) {
+        return { isAuthenticated: true, userRole: parsed.userRole, agentName: parsed.agentName, token: parsed.token };
+      }
+    } catch (e) {}
+  }
+  return { isAuthenticated: false, userRole: '', agentName: '', token: '' };
 };
 
 export default function App() {
@@ -63,6 +71,7 @@ export default function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(initialAuth.isAuthenticated);
   const [userRole, setUserRole] = useState(initialAuth.userRole);
   const [agentName, setAgentName] = useState(initialAuth.agentName);
+  const [token, setToken] = useState(initialAuth.token);
 
   useEffect(() => {
     localStorage.setItem('app_form_data', JSON.stringify(data));
@@ -79,13 +88,20 @@ export default function App() {
   }, [visibleSteps.length, currentStep]);
 
   useEffect(() => {
-    localStorage.setItem('app_auth', JSON.stringify({ isAuthenticated, userRole, agentName }));
-  }, [isAuthenticated, userRole, agentName]);
+    if (isAuthenticated) {
+      const expiresAt = Date.now() + 8 * 60 * 60 * 1000;
+      localStorage.setItem('app_auth', JSON.stringify({ token, userRole, agentName, expiresAt }));
+    } else {
+      localStorage.removeItem('app_auth');
+    }
+  }, [isAuthenticated, userRole, agentName, token]);
 
   const handleLogin = (name: string, role: string) => {
+    const newToken = btoa(`${name}:${Date.now()}`);
     setIsAuthenticated(true);
     setAgentName(name);
     setUserRole(role);
+    setToken(newToken);
     setData(prev => ({ ...prev, agente: name }));
   };
 
@@ -93,6 +109,7 @@ export default function App() {
     setIsAuthenticated(false);
     setAgentName('');
     setUserRole('');
+    setToken('');
     setData(initialData);
     setCurrentStep(0);
     localStorage.removeItem('app_auth');
