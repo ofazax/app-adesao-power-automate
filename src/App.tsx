@@ -216,7 +216,7 @@ export default function App() {
       }
 
       // Mapeamento para os nomes internos exatos da lista SharePoint original
-      const mappedPayload = {
+      const mappedPayload: any = {
         "Data": finalData.data || "",
         "MATR_x00cd_CULA": finalData.matricula || "",
         "IDENTIFICADOR": finalData.identificador || "",
@@ -234,7 +234,7 @@ export default function App() {
         "NOMECOMPLETO": finalData.nomeCompleto || "",
         "RG": finalData.rg || "",
         "CPF": finalData.cpf || "",
-        "DATADENASCIMENTO": formattedDataNascimento || null,
+        "DATADENASCIMENTO": formattedDataNascimento || "",
         "TELEFONE": finalData.telefone || "",
         "EMAIL": finalData.email || "",
         "TIPODEADES_x00c3_O": finalData.tipoAdesao || "",
@@ -258,6 +258,10 @@ export default function App() {
         "Latitude0": finalData.latitude || "",
         "Longitude0": finalData.longitude || ""
       };
+
+      if (!mappedPayload.DATADENASCIMENTO) {
+        delete mappedPayload.DATADENASCIMENTO;
+      }
 
       const webhookUrl = import.meta.env.VITE_POWER_AUTOMATE_WEBHOOK_URL;
       
