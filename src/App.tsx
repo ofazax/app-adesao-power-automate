@@ -259,6 +259,20 @@ export default function App() {
         "Longitude0": finalData.longitude || ""
       };
 
+      // Fill empty photo fields with a 1x1 transparent PNG to prevent Power Automate dataUriToBinary crashes
+      const EMPTY_IMAGE = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
+      const imageFields = [
+        "FOTOCADUNICO", "FOTODAFRENTEDODOCUMENTO0", "FOTODOVERSODODOCUMENTO", 
+        "FACHADA", "FOLHADEADES_x00c3_O", "OUTRAS", "OUTRAS0", "OUTRAS1"
+      ];
+      
+      imageFields.forEach(field => {
+        if (!mappedPayload[field]) {
+          mappedPayload[field] = EMPTY_IMAGE;
+        }
+      });
+
+      // Remove any remaining empty strings (like DATADENASCIMENTO) so SharePoint doesn't crash on invalid types
       Object.keys(mappedPayload).forEach(key => {
         if (mappedPayload[key] === "") {
           delete mappedPayload[key];
