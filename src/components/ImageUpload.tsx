@@ -9,7 +9,8 @@ interface ImageUploadProps {
 }
 
 export const ImageUpload: React.FC<ImageUploadProps> = ({ label, value, onChange, required }) => {
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const cameraInputRef = useRef<HTMLInputElement>(null);
+  const galleryInputRef = useRef<HTMLInputElement>(null);
   const [error, setError] = useState<string>('');
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -21,7 +22,7 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({ label, value, onChange
       return;
     }
 
-    if (file.size > 15 * 1024 * 1024) { // Increased to 15MB to allow modern phone photos before compression
+    if (file.size > 15 * 1024 * 1024) { 
       setError('A imagem deve ter no máximo 15MB.');
       return;
     }
@@ -57,7 +58,6 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({ label, value, onChange
           
           if (ctx) {
             ctx.drawImage(img, 0, 0, width, height);
-            // Compress to JPEG 70% quality
             const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7);
             onChange(compressedBase64);
           } else {
@@ -72,9 +72,8 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({ label, value, onChange
   const handleRemove = (e: React.MouseEvent) => {
     e.stopPropagation();
     onChange('');
-    if (fileInputRef.current) {
-      fileInputRef.current.value = '';
-    }
+    if (cameraInputRef.current) cameraInputRef.current.value = '';
+    if (galleryInputRef.current) galleryInputRef.current.value = '';
   };
 
   return (
@@ -84,14 +83,21 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({ label, value, onChange
       </label>
       
       <div 
-        onClick={() => !value && fileInputRef.current?.click()}
         className={`relative w-full overflow-hidden border-2 border-dashed rounded-xl transition-all
-          ${value ? 'border-transparent bg-white/5 p-0' : 'border-white/10 hover:border-[#93C1F1]/50 hover:bg-white/10 cursor-pointer p-8'}
+          ${value ? 'border-transparent bg-white/5 p-0' : 'border-white/10 hover:border-[#93C1F1]/50 hover:bg-white/10 p-8'}
           flex items-center justify-center min-h-[160px]`}
       >
         <input 
           type="file" 
-          ref={fileInputRef} 
+          ref={cameraInputRef} 
+          onChange={handleFileChange} 
+          accept="image/*"
+          capture="environment"
+          className="hidden" 
+        />
+        <input 
+          type="file" 
+          ref={galleryInputRef} 
           onChange={handleFileChange} 
           accept="image/*"
           className="hidden" 
@@ -103,11 +109,19 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({ label, value, onChange
             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
               <button 
                 type="button"
-                onClick={() => fileInputRef.current?.click()}
+                onClick={(e) => { e.stopPropagation(); cameraInputRef.current?.click(); }}
                 className="bg-white/20 hover:bg-white text-white hover:text-[#93C1F1] p-2 rounded-full backdrop-blur-sm transition-colors"
-                title="Trocar imagem"
+                title="Tirar nova foto"
               >
                 <Camera size={20} />
+              </button>
+              <button 
+                type="button"
+                onClick={(e) => { e.stopPropagation(); galleryInputRef.current?.click(); }}
+                className="bg-white/20 hover:bg-white text-white hover:text-[#93C1F1] p-2 rounded-full backdrop-blur-sm transition-colors"
+                title="Escolher da galeria"
+              >
+                <ImageIcon size={20} />
               </button>
               <button 
                 type="button"
@@ -120,13 +134,25 @@ export const ImageUpload: React.FC<ImageUploadProps> = ({ label, value, onChange
             </div>
           </div>
         ) : (
-          <div className="flex flex-col items-center justify-center text-[#93C1F1] gap-3 text-center">
-            <div className="bg-[#42729E]/50 p-3 rounded-full text-[#93C1F1] border border-[#42729E]/50 shadow-lg shadow-black/20">
-              <Camera size={28} />
-            </div>
-            <div>
-              <p className="font-medium text-white">Toque para adicionar foto</p>
-              <p className="text-xs mt-1 max-w-[200px] mx-auto text-[#93C1F1]/60">JPG ou PNG (máx. 5MB)</p>
+          <div className="flex flex-col items-center justify-center text-[#93C1F1] gap-4 w-full h-full">
+            <p className="font-medium text-white text-sm">Adicionar foto</p>
+            <div className="flex gap-3">
+              <button 
+                type="button" 
+                onClick={(e) => { e.stopPropagation(); cameraInputRef.current?.click(); }}
+                className="flex items-center gap-2 bg-[#42729E] hover:bg-[#42729E]/80 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-lg"
+              >
+                <Camera size={18} />
+                Câmera
+              </button>
+              <button 
+                type="button" 
+                onClick={(e) => { e.stopPropagation(); galleryInputRef.current?.click(); }}
+                className="flex items-center gap-2 bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors border border-white/10"
+              >
+                <ImageIcon size={18} />
+                Galeria
+              </button>
             </div>
           </div>
         )}
