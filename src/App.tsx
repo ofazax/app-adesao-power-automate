@@ -259,9 +259,11 @@ export default function App() {
         "Longitude0": finalData.longitude || ""
       };
 
-      if (!mappedPayload.DATADENASCIMENTO) {
-        delete mappedPayload.DATADENASCIMENTO;
-      }
+      Object.keys(mappedPayload).forEach(key => {
+        if (mappedPayload[key] === "") {
+          delete mappedPayload[key];
+        }
+      });
 
       const webhookUrl = import.meta.env.VITE_POWER_AUTOMATE_WEBHOOK_URL;
       
