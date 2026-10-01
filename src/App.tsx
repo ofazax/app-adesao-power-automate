@@ -55,7 +55,7 @@ export default function App() {
 
   const [data, setData] = useState<FormData>(getInitialData);
   
-  const isSimplifiedFlow = ['Ausente', 'Inexistente', 'Recusa', 'Lote Vago', 'Lote'].includes(data.statusVisita);
+  const isSimplifiedFlow = ['Ausente', 'Inexistente', 'Recusa', 'Lote Vago', 'Lote', 'Desabilitado'].includes(data.statusVisita);
   
   const visibleSteps = steps.filter(step => {
     if (isSimplifiedFlow) {
