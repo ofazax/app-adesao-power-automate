@@ -8,7 +8,7 @@ interface StepProps {
 }
 
 export const StepAttachments: React.FC<StepProps> = ({ data, onChange }) => {
-  const isSimplifiedFlow = ['Ausente', 'Inexistente', 'Recusa', 'Lote Vago', 'Lote', 'Desabitado'].includes(data.statusVisita);
+  const isSimplifiedFlow = ['Ausente', 'Inexistente', 'Recusa', 'Lote Vago', 'Lote', 'Desabitado', 'Desativado'].includes(data.statusVisita);
 
   return (
     <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500 pb-8">

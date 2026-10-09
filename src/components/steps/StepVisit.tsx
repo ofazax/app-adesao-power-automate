@@ -33,6 +33,7 @@ export const StepVisit: React.FC<StepProps> = ({ data, onChange }) => {
           { value: 'Adesão', label: 'Adesão' },
           { value: 'Ausente', label: 'Ausente' },
           { value: 'Desabitado', label: 'Desabitado' },
+          { value: 'Desativado', label: 'Desativado' },
           { value: 'Inexistente', label: 'Inexistente' },
           { value: 'Recusa', label: 'Recusa' },
           { value: 'Lote', label: 'Lote' }
