@@ -127,6 +127,7 @@ export default function App() {
     const stepId = visibleSteps[stepIndex]?.id;
     if (stepId === 'visit') {
       if (!data.data) return 'Por favor, preencha a data da visita.';
+      if (!data.statusVisita) return 'Por favor, selecione o status da visita.';
     } else if (stepId === 'address') {
       if (!data.tipoLogradouro || !data.logradouro || !data.numero || !data.tipoComplemento || !data.bairro || !data.cidade) {
         return 'Por favor, preencha todos os campos obrigatórios desta etapa.';

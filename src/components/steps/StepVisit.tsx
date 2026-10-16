@@ -26,10 +26,10 @@ export const StepVisit: React.FC<StepProps> = ({ data, onChange }) => {
       
       <Select
         label="Status da Visita"
+        required
         value={data.statusVisita}
         onChange={e => onChange({ statusVisita: e.target.value })}
         options={[
-          { value: '', label: 'Selecione (opcional)' },
           { value: 'Adesão', label: 'Adesão' },
           { value: 'Ausente', label: 'Ausente' },
           { value: 'Desabitado', label: 'Desabitado' },
