@@ -173,7 +173,7 @@ export default function App() {
       if (isSimplifiedFlow) {
         if (!data.fachada) return 'Por favor, anexe a foto da fachada.';
       } else {
-        if (!data.fachada || !data.frenteDocumento || !data.versoDocumento || !data.folhaAdesao) return 'Por favor, preencha todos os campos obrigatórios e anexe os documentos necessários.';
+        if (!data.fachada || !data.frenteDocumento || !data.versoDocumento || !data.folhaAdesao || !data.outras2) return 'Por favor, preencha todos os campos obrigatórios e anexe os documentos necessários.';
       }
     }
     return null;

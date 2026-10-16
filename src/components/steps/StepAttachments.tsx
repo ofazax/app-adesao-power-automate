@@ -50,7 +50,8 @@ export const StepAttachments: React.FC<StepProps> = ({ data, onChange }) => {
             />
             {/* Usa o antigo campo "Outra Foto 3" (coluna OUTRAS1 no SharePoint) */}
             <ImageUpload 
-              label="Folha de Adesão 2 (Opcional)" 
+              label="Folha de Adesão 2" 
+              required 
               value={data.outras2} 
               onChange={val => onChange({ outras2: val })} 
             />
