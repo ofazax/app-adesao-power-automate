@@ -131,6 +131,9 @@ export default function App() {
       if (!data.tipoLogradouro || !data.logradouro || !data.numero || !data.tipoComplemento || !data.bairro || !data.cidade) {
         return 'Por favor, preencha todos os campos obrigatórios desta etapa.';
       }
+      if (!isSimplifiedFlow && !data.entreNumeros) {
+        return 'Por favor, preencha o campo "Entre Números".';
+      }
       if (!data.latitude || !data.longitude) {
         return 'Por favor, preencha a latitude e longitude do endereço.';
       }
@@ -162,7 +165,9 @@ export default function App() {
         }
       }
     } else if (stepId === 'technical') {
-      if (!data.tipoAdesao) return 'Por favor, preencha todos os campos obrigatórios desta etapa.';
+      if (!data.matricula || !data.numeroEconomias || !data.tipoAdesao || !data.pavimentoInterno || !data.pavimentoExterno) {
+        return 'Por favor, preencha todos os campos obrigatórios desta etapa.';
+      }
     } else if (stepId === 'attachments') {
       if (isSimplifiedFlow) {
         if (!data.fachada) return 'Por favor, anexe a foto da fachada.';

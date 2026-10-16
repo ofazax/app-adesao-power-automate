@@ -21,6 +21,7 @@ export const StepTechnical: React.FC<StepProps> = ({ data, onChange }) => {
           label="Matrícula"
           type="text"
           inputMode="numeric"
+          required
           value={data.matricula}
           onChange={e => onChange({ matricula: e.target.value.replace(/\D/g, '') })}
         />
@@ -44,6 +45,7 @@ export const StepTechnical: React.FC<StepProps> = ({ data, onChange }) => {
           label="Nº de Economias"
           type="text"
           inputMode="numeric"
+          required
           value={data.numeroEconomias}
           onChange={e => onChange({ numeroEconomias: e.target.value.replace(/\D/g, '') })}
         />
@@ -76,6 +78,7 @@ export const StepTechnical: React.FC<StepProps> = ({ data, onChange }) => {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Select
           label="Pavimento Interno"
+          required
           value={data.pavimentoInterno}
           onChange={e => onChange({ pavimentoInterno: e.target.value })}
           options={[
@@ -87,6 +90,7 @@ export const StepTechnical: React.FC<StepProps> = ({ data, onChange }) => {
         />
         <Select
           label="Pavimento Externo"
+          required
           value={data.pavimentoExterno}
           onChange={e => onChange({ pavimentoExterno: e.target.value })}
           options={[

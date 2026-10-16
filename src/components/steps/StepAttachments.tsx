@@ -41,12 +41,20 @@ export const StepAttachments: React.FC<StepProps> = ({ data, onChange }) => {
             />
           </div>
 
-          <ImageUpload 
-            label="Folha de Adesão" 
-            required 
-            value={data.folhaAdesao} 
-            onChange={val => onChange({ folhaAdesao: val })} 
-          />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <ImageUpload 
+              label="Folha de Adesão" 
+              required 
+              value={data.folhaAdesao} 
+              onChange={val => onChange({ folhaAdesao: val })} 
+            />
+            {/* Usa o antigo campo "Outra Foto 3" (coluna OUTRAS1 no SharePoint) */}
+            <ImageUpload 
+              label="Folha de Adesão 2 (Opcional)" 
+              value={data.outras2} 
+              onChange={val => onChange({ outras2: val })} 
+            />
+          </div>
 
           <div className="pt-4 border-t border-white/10">
             <h3 className="font-semibold text-white mb-4">Fotos Adicionais (Opcional)</h3>
@@ -66,11 +74,6 @@ export const StepAttachments: React.FC<StepProps> = ({ data, onChange }) => {
                 label="Outra Foto 2" 
                 value={data.outras1} 
                 onChange={val => onChange({ outras1: val })} 
-              />
-              <ImageUpload 
-                label="Outra Foto 3" 
-                value={data.outras2} 
-                onChange={val => onChange({ outras2: val })} 
               />
             </div>
           </div>

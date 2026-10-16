@@ -136,6 +136,7 @@ export const StepAddress: React.FC<StepProps> = ({ data, onChange }) => {
           label="Entre Números"
           type="text"
           placeholder="Ex: 100 e 200"
+          required={!['Ausente', 'Inexistente', 'Recusa', 'Lote Vago', 'Lote', 'Desabitado', 'Desativado'].includes(data.statusVisita)}
           value={data.entreNumeros}
           onChange={e => onChange({ entreNumeros: sanitizeAddressInput(e.target.value) })}
           autoComplete="off"
